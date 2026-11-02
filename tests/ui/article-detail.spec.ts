@@ -15,6 +15,13 @@ test.describe('article detail', () => {
     await expect(detail).toContainText(target.body);
   });
 
+  test('puts the article title in the document title', async ({ page }) => {
+    await page.goto(`/#/article/${target.slug}`);
+    await expect(page).toHaveTitle(`${target.title} - Test Notes`);
+    await page.getByRole('link', { name: 'Back to articles' }).click();
+    await expect(page).toHaveTitle('Articles');
+  });
+
   test('can be opened directly from its address', async ({ page }) => {
     await page.goto(`/#/article/${target.slug}`);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(target.title);

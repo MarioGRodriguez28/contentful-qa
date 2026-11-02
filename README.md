@@ -13,13 +13,13 @@ A seed script creates an `Article` content type and four entries in a Contentful
 | Delivery API (REST) | Axios, Vitest | status, media type, response envelope, required fields and their types, filtering, selecting, ordering, paging, drafts not delivered, 401 and 404 and 400 and 422 answers, error body shape, response time | 48 |
 | Delivery API (REST) | Postman, Newman | the same core checks as an exported collection and environment, run from the command line | 13 requests, 40 assertions |
 | GraphQL API | Axios, Vitest | valid queries, aliases, variables, fragments, introspection, filters, ordering, paging, drafts, invalid queries, authentication and addressing errors, response time | 41 |
-| Web page | Playwright, axe-core | article list and detail, error and empty states, content shown as text and not as markup, accessibility, phone emulation (Pixel 7, iPhone 13) and desktop | 81 passed, 15 skipped on purpose |
-| Load | k6 | a gentle check of the Delivery API: 3 users for 20 seconds | 300 requests, 0% failed, p95 122 ms |
+| Web page | Playwright, axe-core | article list and detail, document title, error and empty states, content shown as text and not as markup, accessibility, phone emulation (Pixel 7, iPhone 13) and desktop | 85 passed, 17 skipped on purpose |
+| Load | k6 | a gentle check of the Delivery API: 3 users for 20 seconds | 303 requests, 0% failed, p95 43 ms |
 | Support code | Vitest, Python `unittest` | the config loader, the seed data and the results summary script | 10 and 8 |
 
-The 15 skipped Playwright cases are by design: phone-only tests do not run on desktop, desktop-only tests do not run on phones, and the checks on the small page server run once instead of three times.
+The 17 skipped Playwright cases are by design: phone-only tests do not run on desktop, desktop-only tests do not run on phones, and the checks on the small page server run once instead of three times.
 
-Last full run, all green: 210 passed, 0 failed, 15 skipped, plus the load check and the Python tests. Lint, types, unit, REST, Postman, GraphQL and Playwright were also run step by step in a clean clone on Node 22 with no `.env` and only the two read-only secrets.
+Last full run, all green: 214 passed, 0 failed, 17 skipped, plus the load check and the Python tests. Lint, types, unit, REST, Postman, GraphQL and Playwright were also run step by step in a clean clone on Node 22 with no `.env` and only the two read-only secrets.
 
 ## Requirements
 
@@ -27,6 +27,12 @@ Last full run, all green: 210 passed, 0 failed, 15 skipped, plus the load check 
 - Python 3 for the summary script (tested with 3.9). Standard library only.
 - k6, only for `npm run test:load`.
 - A free Contentful account.
+
+## The page
+
+It is a small publication called Test Notes. The list reads like a table of contents: numbered rows, thick rules, a condensed display face for the titles, and the whole row is the link. An article is one narrow reading column under a heavy rule. The look follows my own site, with the same colours and type, and it uses no gradients, shadows or icons.
+
+It is accessible on purpose: real headings, focus moves to the title when the view changes, the document title follows the article, and links are at least 44 px tall. The fonts are Big Shoulders Display, Archivo and JetBrains Mono, served from the project itself under the SIL Open Font License, so the page asks nothing from font services.
 
 ## Setup, step by step
 
@@ -107,14 +113,14 @@ Reports go to `reports/` and `playwright-report/`.
 - The page reads Contentful from the browser, so the **read-only delivery token is visible in the browser**. That is how a page that reads directly works, and that token can only read published content. It is injected when the page is served and is not in the repository.
 - Playwright traces record request headers, so they are off in CI. I checked the reports from a CI-style run for the token and found none.
 - Content from the API is written to the page as text, never as HTML. A test sends a hostile title and checks that nothing runs.
-- The page server only serves its own four files and sets a strict Content-Security-Policy.
+- The page server only serves the page files and the three fonts, nothing else on disk, and sets a strict Content-Security-Policy. The page makes no request to any third party except the Contentful API.
 
 ## Structure
 
 ```
 src/            config loader, management API helper, seed data
 scripts/        seed, page server, Newman and k6 runners, Python summary
-web/            the page (HTML, JavaScript, CSS)
+web/            the page (HTML, JavaScript, CSS, fonts)
 postman/        collection and environment
 tests/api       REST tests        tests/graphql   GraphQL tests
 tests/ui        Playwright tests  load/           k6 script

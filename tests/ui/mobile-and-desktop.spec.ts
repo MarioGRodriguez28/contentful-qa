@@ -42,9 +42,15 @@ test.describe('phone emulation', () => {
 test.describe('desktop layout', () => {
   test.skip(({ isMobile }) => isMobile, 'only runs in the desktop project');
 
-  test('keeps the text column at a readable width', async ({ page }) => {
+  test('keeps the article text at a readable width', async ({ page }) => {
+    await page.goto(`/#/article/${NEWEST_FIRST[0]!.slug}`);
+    const box = (await page.getByTestId('article-detail').locator('.body').boundingBox())!;
+    expect(box.width).toBeLessThanOrEqual(700);
+  });
+
+  test('uses the wide column for the list', async ({ page }) => {
     await page.goto('/');
     const box = (await page.locator('main').boundingBox())!;
-    expect(box.width).toBeLessThanOrEqual(700);
+    expect(box.width).toBeGreaterThan(900);
   });
 });

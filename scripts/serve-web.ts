@@ -9,10 +9,14 @@ const WEB_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'w
 const port = Number(process.env.WEB_PORT) || 4173;
 
 // Only these files are served, so no request can reach anything else on disk.
+const FONT = 'font/woff2';
 const FILES: Record<string, [string, string]> = {
   '/': ['index.html', 'text/html; charset=utf-8'],
   '/app.js': ['app.js', 'text/javascript; charset=utf-8'],
   '/style.css': ['style.css', 'text/css; charset=utf-8'],
+  '/fonts/archivo.woff2': ['fonts/archivo.woff2', FONT],
+  '/fonts/bigshouldersdisplay.woff2': ['fonts/bigshouldersdisplay.woff2', FONT],
+  '/fonts/jetbrainsmono.woff2': ['fonts/jetbrainsmono.woff2', FONT],
 };
 const HEADERS = {
   'cache-control': 'no-store',
@@ -38,6 +42,7 @@ http
       res.writeHead(404, HEADERS).end('Not found');
       return;
     }
-    res.writeHead(200, { ...HEADERS, 'content-type': file[1] }).end(await readFile(path.join(WEB_DIR, file[0])));
+    const headers = { ...HEADERS, 'content-type': file[1], ...(file[1] === FONT && { 'cache-control': 'public, max-age=86400' }) };
+    res.writeHead(200, headers).end(await readFile(path.join(WEB_DIR, file[0])));
   })
   .listen(port, '127.0.0.1', () => console.log(`Serving the page on http://127.0.0.1:${port}`));

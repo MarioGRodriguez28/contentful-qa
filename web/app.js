@@ -1,6 +1,7 @@
 (() => {
   const { spaceId, environment, token } = window.CONTENTFUL;
   const ENTRIES = `https://cdn.contentful.com/spaces/${spaceId}/environments/${environment}/entries`;
+  const PUBLICATION = 'Test Notes';
   const view = document.getElementById('view');
   const status = document.getElementById('status');
 
@@ -30,22 +31,28 @@
 
   function renderList(items) {
     if (items.length === 0) return say('No articles yet.');
-    const list = el('ul', { class: 'cards', id: 'articles' });
-    for (const { fields } of items) {
-      const card = el('li', { class: 'card', 'data-testid': 'article-card' });
+    const list = el('ol', { class: 'ledger', id: 'articles' });
+    items.forEach(({ fields }, index) => {
+      const entry = el('li', { class: 'entry', 'data-testid': 'article-card' });
       const heading = el('h2');
       heading.append(el('a', { href: `#/article/${encodeURIComponent(fields.slug)}` }, fields.title));
-      card.append(heading, meta(fields), el('p', { class: 'excerpt' }, fields.body.slice(0, 110) + (fields.body.length > 110 ? '...' : '')));
-      list.append(card);
-    }
-    view.replaceChildren(el('h1', { tabindex: '-1' }, 'Articles'), list);
+      const number = el('span', { class: 'num', 'aria-hidden': 'true' }, String(index + 1).padStart(2, '0'));
+      const excerpt = fields.body.slice(0, 110) + (fields.body.length > 110 ? '...' : '');
+      entry.append(number, heading, meta(fields), el('p', { class: 'excerpt' }, excerpt));
+      list.append(entry);
+    });
+    const row = el('div', { class: 'heading-row' });
+    row.append(el('h1', { tabindex: '-1' }, 'Articles'), el('p', { class: 'tally' }, `${items.length} published`));
+    view.replaceChildren(row, list);
+    document.title = 'Articles';
     status.textContent = '';
   }
 
   function renderDetail({ fields }) {
-    const article = el('article', { 'data-testid': 'article-detail' });
+    const article = el('article', { class: 'piece', 'data-testid': 'article-detail' });
     article.append(el('h1', { tabindex: '-1' }, fields.title), meta(fields), el('p', { class: 'body' }, fields.body), el('a', { class: 'back', href: '#/' }, 'Back to articles'));
     view.replaceChildren(article);
+    document.title = `${fields.title} - ${PUBLICATION}`;
     status.textContent = '';
   }
 
