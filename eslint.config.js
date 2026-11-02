@@ -6,6 +6,10 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
+    files: ['load/**/*.js'],
+    languageOptions: { sourceType: 'module', globals: { __ENV: 'readonly' } },
+  },
+  {
     files: ['web/**/*.js'],
     languageOptions: {
       sourceType: 'script',
