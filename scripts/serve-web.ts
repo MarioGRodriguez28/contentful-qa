@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadDeliveryConfig } from '../src/config';
+import { configScript } from '../src/page-config';
 
 const config = loadDeliveryConfig();
 const WEB_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'web');
@@ -31,10 +32,8 @@ http
       res.writeHead(405, HEADERS).end('Method not allowed');
       return;
     }
-    // The page reads published content, so it only ever receives the read-only delivery token.
     if (pathname === '/config.js') {
-      const body = `window.CONTENTFUL = ${JSON.stringify({ spaceId: config.spaceId, environment: config.environment, token: config.cdaToken })};`;
-      res.writeHead(200, { ...HEADERS, 'content-type': 'text/javascript; charset=utf-8' }).end(body);
+      res.writeHead(200, { ...HEADERS, 'content-type': 'text/javascript; charset=utf-8' }).end(configScript(config));
       return;
     }
     const file = FILES[pathname];

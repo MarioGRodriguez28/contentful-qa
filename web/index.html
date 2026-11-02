@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://cdn.contentful.com; img-src 'self' data:; base-uri 'none'">
   <title>Articles</title>
   <meta name="description" content="Short notes on testing, read live from a headless CMS.">
-  <link rel="preload" href="/fonts/bigshouldersdisplay.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/style.css">
+  <link rel="preload" href="fonts/bigshouldersdisplay.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="masthead">
@@ -20,7 +21,7 @@
   <footer class="colophon">
     <p>Content delivered by the Contentful Content Delivery API. Set in Big Shoulders Display, Archivo and JetBrains Mono.</p>
   </footer>
-  <script src="/config.js"></script>
-  <script src="/app.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
