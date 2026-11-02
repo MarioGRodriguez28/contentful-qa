@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run test",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "test:api": "vitest run tests/api --reporter=default --reporter=junit --outputFile.junit=reports/api-junit.xml"
   },
   "author": "Mario Rodr\u00edguez",
   "license": "MIT",
