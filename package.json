@@ -1,0 +1,29 @@
+{
+  "name": "contentful-qa",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Personal learning project: API, GraphQL and UI tests against a Contentful space",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run test"
+  },
+  "author": "Mario Rodríguez",
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.6",
+    "eslint": "^10.14.0",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vitest": "^5.1.0"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.9"
+  }
+}
