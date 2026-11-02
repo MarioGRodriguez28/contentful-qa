@@ -5,18 +5,19 @@
   "description": "Personal learning project: API, GraphQL and UI tests against a Contentful space",
   "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.12"
   },
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test:unit": "vitest run test",
+    "test:unit": "vitest run --dir test",
     "seed": "tsx scripts/seed.ts",
-    "test:api": "vitest run tests/api --reporter=default --reporter=junit --outputFile.junit=reports/api-junit.xml",
+    "test:api": "vitest run --dir tests/api --reporter=default --reporter=junit --outputFile.junit=reports/api-junit.xml",
     "test:postman": "tsx scripts/run-newman.ts",
-    "test:graphql": "vitest run tests/graphql --reporter=default --reporter=junit --outputFile.junit=reports/graphql-junit.xml",
+    "test:graphql": "vitest run --dir tests/graphql --reporter=default --reporter=junit --outputFile.junit=reports/graphql-junit.xml",
     "serve:web": "tsx scripts/serve-web.ts",
-    "test:ui": "playwright test"
+    "test:ui": "playwright test",
+    "test:all": "npm run test:unit && npm run test:api && npm run test:postman && npm run test:graphql && npm run test:ui"
   },
   "author": "Mario Rodr\u00edguez",
   "license": "MIT",
