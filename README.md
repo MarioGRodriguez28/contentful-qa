@@ -32,6 +32,8 @@ Last full run, all green: 214 passed, 0 failed, 17 skipped, plus the load check 
 
 ## The page
 
+Live: https://mariogrodriguez28.github.io/contentful-qa/
+
 It is a small publication called Test Notes. The list reads like a table of contents: numbered rows, thick rules, a condensed display face for the titles, and the whole row is the link. An article is one narrow reading column under a heavy rule. The look follows my own site, with the same colours and type, and it uses no gradients, shadows or icons.
 
 It is accessible on purpose: real headings, focus moves to the title when the view changes, the document title follows the article, and links are at least 44 px tall. The fonts are Big Shoulders Display, Archivo and JetBrains Mono, served from the project itself under the SIL Open Font License, so the page asks nothing from font services.
@@ -85,6 +87,8 @@ The seed is repeatable: running it again leaves the same four entries.
 | `npm run test:python` | tests of the summary script |
 | `npm run report:summary` | writes `reports/summary.md` from the JUnit and k6 reports |
 | `npm run serve:web` | serves the page on http://127.0.0.1:4173 |
+| `npm run build:pages` | builds `dist/` for GitHub Pages from the environment variables |
+| `npm run test:live` | smoke tests against a published page, with `LIVE_URL` set |
 | `npm run lint`, `npm run typecheck` | static checks |
 
 Reports go to `reports/` and `playwright-report/`.
@@ -104,7 +108,7 @@ Reports go to `reports/` and `playwright-report/`.
 
 ## CI
 
-`.github/workflows/tests.yml` runs on every push and pull request, and can be started by hand. It has three jobs: lint, types and unit tests with no secrets, then the API suites and the Playwright suite, each saving its reports as artifacts. The last two need two repository secrets: `CONTENTFUL_SPACE_ID` and `CONTENTFUL_CDA_TOKEN`. They only read content; the management token is never used in CI.
+`.github/workflows/tests.yml` runs on every push and pull request, and can be started by hand. It has five jobs: lint, types and unit tests with no secrets, then the API suites and the Playwright suite, each saving its reports as artifacts. Those two need two repository secrets: `CONTENTFUL_SPACE_ID` and `CONTENTFUL_CDA_TOKEN`. They only read content; the management token is never used in CI. On `main`, when all of that passes, a fourth job publishes the page to GitHub Pages and a fifth runs smoke tests against the published URL (list order, no draft, open and back, unknown article, no console errors, no request outside the Contentful API, no management token in `config.js`).
 
 The first run on GitHub passed in all three jobs. Its reports have the same counts as a local run (102 UI cases, 48 REST, 40 Postman assertions, 41 GraphQL), and I checked the uploaded artifacts: they hold no token and no Playwright traces. Before publishing I had also run each step in a clean clone on Node 22 with only those two secrets. Pull requests from forks do not receive secrets, so those jobs only run for branches of this repository.
 
@@ -112,7 +116,7 @@ The first run on GitHub passed in all three jobs. Its reports have the same coun
 
 - Tokens live only in `.env` and in repository secrets. `.env.example` has no values.
 - The seed is the only thing that needs the management token. Everything else loads a read-only configuration.
-- The page reads Contentful from the browser, so the **read-only delivery token is visible in the browser**. That is how a page that reads directly works, and that token can only read published content. It is injected when the page is served and is not in the repository.
+- The page reads Contentful from the browser, so the **read-only delivery token is visible in the browser**. That is how a page that reads directly works, and that token can only read published content. It is injected when the page is built or served and is not in the repository. The published page uses its own secret, `CONTENTFUL_PUBLIC_CDA_TOKEN`, so it can be revoked without touching the tests. `build:pages` refuses to run if that token is a management token (`CFPAT-`). I learned why the hard way: I once pasted the wrong token into that secret, the page published it, and I had to revoke it. The smoke tests now also check for it.
 - Playwright traces record request headers, so they are off in CI. I checked the reports from a CI-style run for the token and found none.
 - Content from the API is written to the page as text, never as HTML. A test sends a hostile title and checks that nothing runs.
 - The page server only serves the page files and the three fonts, nothing else on disk, and sets a strict Content-Security-Policy. The page makes no request to any third party except the Contentful API.
@@ -121,11 +125,12 @@ The first run on GitHub passed in all three jobs. Its reports have the same coun
 
 ```
 src/            config loader, management API helper, seed data
-scripts/        seed, page server, Newman and k6 runners, Python summary
+scripts/        seed, page server, Pages build, Newman and k6 runners, Python summary
 web/            the page (HTML, JavaScript, CSS, fonts)
 postman/        collection and environment
 tests/api       REST tests        tests/graphql   GraphQL tests
 tests/ui        Playwright tests  load/           k6 script
+tests/live      smoke tests of the published page
 test/           unit tests of the support code
 .github/        workflow
 ```
