@@ -14,12 +14,16 @@
     "seed": "tsx scripts/seed.ts",
     "test:api": "vitest run tests/api --reporter=default --reporter=junit --outputFile.junit=reports/api-junit.xml",
     "test:postman": "tsx scripts/run-newman.ts",
-    "test:graphql": "vitest run tests/graphql --reporter=default --reporter=junit --outputFile.junit=reports/graphql-junit.xml"
+    "test:graphql": "vitest run tests/graphql --reporter=default --reporter=junit --outputFile.junit=reports/graphql-junit.xml",
+    "serve:web": "tsx scripts/serve-web.ts",
+    "test:ui": "playwright test"
   },
   "author": "Mario Rodr\u00edguez",
   "license": "MIT",
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
     "@types/node": "^26.6.6",
     "eslint": "^10.14.0",
     "newman": "^6.2.3",
