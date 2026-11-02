@@ -13,7 +13,8 @@
     "test:unit": "vitest run test",
     "seed": "tsx scripts/seed.ts",
     "test:api": "vitest run tests/api --reporter=default --reporter=junit --outputFile.junit=reports/api-junit.xml",
-    "test:postman": "tsx scripts/run-newman.ts"
+    "test:postman": "tsx scripts/run-newman.ts",
+    "test:graphql": "vitest run tests/graphql --reporter=default --reporter=junit --outputFile.junit=reports/graphql-junit.xml"
   },
   "author": "Mario Rodr\u00edguez",
   "license": "MIT",

@@ -1,9 +1,11 @@
 import { PUBLISHED_ARTICLES } from '../../src/seed-data';
 import { listArticles } from './delivery';
 
-// Fails fast with a clear message when the space has not been seeded, instead of many confusing failures.
+// Fails fast with a message that points at the real cause, instead of many confusing failures.
 export async function requireSeededSpace(): Promise<void> {
   const res = await listArticles({ limit: 1 });
+  if (res.status === 401) throw new Error('The delivery token was rejected (401). Check CONTENTFUL_CDA_TOKEN in .env.');
+  if (res.status === 404) throw new Error('The space or environment was not found (404). Check CONTENTFUL_SPACE_ID and CONTENTFUL_ENVIRONMENT in .env.');
   if (res.status !== 200 || res.data.total !== PUBLISHED_ARTICLES.length) {
     throw new Error(`The space is not seeded as expected (status ${res.status}, ${res.data?.total ?? '?'} published articles, expected ${PUBLISHED_ARTICLES.length}). Run "npm run seed" first.`);
   }
