@@ -1,8 +1,8 @@
 import newman from 'newman';
-import { loadConfig } from '../src/config';
+import { loadDeliveryConfig } from '../src/config';
 
 // The exported environment holds no secrets; the space id and token are injected from .env at run time.
-const config = loadConfig();
+const config = loadDeliveryConfig();
 
 newman.run(
   {

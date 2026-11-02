@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { loadConfig } from '../../src/config';
+import { loadDeliveryConfig } from '../../src/config';
 
-export const config = loadConfig();
+export const config = loadDeliveryConfig();
 export const DELIVERY_ROOT = 'https://cdn.contentful.com';
 export const ENV_PATH = `/spaces/${config.spaceId}/environments/${config.environment}`;
 

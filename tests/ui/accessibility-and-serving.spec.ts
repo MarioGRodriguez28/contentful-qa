@@ -32,10 +32,12 @@ test.describe('accessibility', () => {
 test.describe('what the page server sends', () => {
   test.skip(({ browserName, isMobile }) => browserName !== 'chromium' || isMobile, 'same for every project, so it runs once on desktop Chromium');
 
-  test('hands the page only the read-only delivery token, never the management token', async ({ request }) => {
+  test('hands the page only the space, environment and read-only delivery token', async ({ request }) => {
     const body = await (await request.get('/config.js')).text();
-    expect(body).toContain(config.cdaToken);
-    expect(body).not.toContain(config.cmaToken);
+    const handed = JSON.parse(body.replace(/^window\.CONTENTFUL = /, '').replace(/;$/, '')) as Record<string, string>;
+    expect(Object.keys(handed).sort()).toEqual(['environment', 'spaceId', 'token']);
+    expect(handed.token).toBe(config.cdaToken);
+    expect(body).not.toContain('CFPAT-');
   });
 
   test('sends security headers and does not cache the config', async ({ request }) => {

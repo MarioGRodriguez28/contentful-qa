@@ -2,9 +2,9 @@ import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadConfig } from '../src/config';
+import { loadDeliveryConfig } from '../src/config';
 
-const config = loadConfig();
+const config = loadDeliveryConfig();
 const WEB_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'web');
 const port = Number(process.env.WEB_PORT) || 4173;
 
