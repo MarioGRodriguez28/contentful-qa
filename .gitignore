@@ -6,3 +6,5 @@ test-results/
 newman/
 *.log
 .DS_Store
+dist/
+playwright-report-live/

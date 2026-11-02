@@ -20,7 +20,9 @@
     "test:all": "npm run test:unit && npm run test:api && npm run test:postman && npm run test:graphql && npm run test:ui",
     "test:load": "tsx scripts/run-k6.ts",
     "test:python": "cd scripts && python3 -m unittest -v test_summarize_results",
-    "report:summary": "python3 scripts/summarize_results.py"
+    "report:summary": "python3 scripts/summarize_results.py",
+    "build:pages": "tsx scripts/build-pages.ts",
+    "test:live": "playwright test -c playwright.live.config.ts"
   },
   "author": "Mario Rodr\u00edguez",
   "license": "MIT",
