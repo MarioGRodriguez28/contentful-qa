@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run test",
     "seed": "tsx scripts/seed.ts",
-    "test:api": "vitest run tests/api --reporter=default --reporter=junit --outputFile.junit=reports/api-junit.xml"
+    "test:api": "vitest run tests/api --reporter=default --reporter=junit --outputFile.junit=reports/api-junit.xml",
+    "test:postman": "tsx scripts/run-newman.ts"
   },
   "author": "Mario Rodr\u00edguez",
   "license": "MIT",
@@ -20,6 +21,7 @@
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.6.6",
     "eslint": "^10.14.0",
+    "newman": "^6.2.3",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.1",

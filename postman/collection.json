@@ -1,0 +1,567 @@
+{
+  "info": {
+    "name": "Contentful Delivery API",
+    "description": "Read-only checks of the Content Delivery API for the seeded Article content type.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{cdaToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('responds in under 1500 ms', () => pm.expect(pm.response.responseTime).to.be.below(1500));"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Entries",
+      "item": [
+        {
+          "name": "List articles",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('uses the Contentful delivery media type', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/vnd.contentful.delivery.v1+json'));",
+                  "const body = pm.response.json();",
+                  "pm.test('collection envelope has sys, total, skip, limit and items', () => { pm.expect(body.sys.type).to.eql('Array'); pm.expect(body).to.have.all.keys('sys', 'total', 'skip', 'limit', 'items'); });",
+                  "pm.test('only published articles are delivered', () => pm.expect(body.total).to.eql(Number(pm.environment.get('expectedTotal'))));",
+                  "pm.test('the draft is not in the list', () => pm.expect(body.items.map((e) => e.fields.slug)).to.not.include(pm.environment.get('draftSlug')));",
+                  "pm.test('every entry has the required fields', () => body.items.forEach((e) => ['title', 'slug', 'body', 'author', 'publishedDate'].forEach((f) => pm.expect(e.fields[f], e.sys.id + ' ' + f).to.be.a('string').and.not.empty)));",
+                  "pm.test('every entry is an article with a published version', () => body.items.forEach((e) => { pm.expect(e.sys.type).to.eql('Entry'); pm.expect(e.sys.contentType.sys.id).to.eql('article'); pm.expect(e.sys.publishedVersion).to.be.a('number'); }));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/spaces/{{spaceId}}/environments/{{environment}}/entries?content_type=article",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "spaces",
+                "{{spaceId}}",
+                "environments",
+                "{{environment}}",
+                "entries"
+              ],
+              "query": [
+                {
+                  "key": "content_type",
+                  "value": "article"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get a published entry",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('returns the requested entry', () => { const b = pm.response.json(); pm.expect(b.sys.id).to.eql(pm.environment.get('publishedId')); pm.expect(b.fields.slug).to.eql(pm.environment.get('publishedSlug')); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/spaces/{{spaceId}}/environments/{{environment}}/entries/{{publishedId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "spaces",
+                "{{spaceId}}",
+                "environments",
+                "{{environment}}",
+                "entries",
+                "{{publishedId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter by slug",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('exactly one entry matches', () => { const b = pm.response.json(); pm.expect(b.total).to.eql(1); pm.expect(b.items[0].fields.slug).to.eql(pm.environment.get('publishedSlug')); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/spaces/{{spaceId}}/environments/{{environment}}/entries?content_type=article&fields.slug={{publishedSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "spaces",
+                "{{spaceId}}",
+                "environments",
+                "{{environment}}",
+                "entries"
+              ],
+              "query": [
+                {
+                  "key": "content_type",
+                  "value": "article"
+                },
+                {
+                  "key": "fields.slug",
+                  "value": "{{publishedSlug}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Select a single field",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('only the selected field comes back', () => pm.response.json().items.forEach((e) => pm.expect(Object.keys(e.fields)).to.eql(['title'])));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/spaces/{{spaceId}}/environments/{{environment}}/entries?content_type=article&select=fields.title",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "spaces",
+                "{{spaceId}}",
+                "environments",
+                "{{environment}}",
+                "entries"
+              ],
+              "query": [
+                {
+                  "key": "content_type",
+                  "value": "article"
+                },
+                {
+                  "key": "select",
+                  "value": "fields.title"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Order by date, newest first",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('the newest published article is first', () => pm.expect(pm.response.json().items[0].fields.slug).to.eql(pm.environment.get('latestSlug')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/spaces/{{spaceId}}/environments/{{environment}}/entries?content_type=article&order=-fields.publishedDate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "spaces",
+                "{{spaceId}}",
+                "environments",
+                "{{environment}}",
+                "entries"
+              ],
+              "query": [
+                {
+                  "key": "content_type",
+                  "value": "article"
+                },
+                {
+                  "key": "order",
+                  "value": "-fields.publishedDate"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Page size and total",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('limit is respected and the total is kept', () => { const b = pm.response.json(); pm.expect(b.items).to.have.lengthOf(2); pm.expect(b.total).to.eql(Number(pm.environment.get('expectedTotal'))); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/spaces/{{spaceId}}/environments/{{environment}}/entries?content_type=article&limit=2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "spaces",
+                "{{spaceId}}",
+                "environments",
+                "{{environment}}",
+                "entries"
+              ],
+              "query": [
+                {
+                  "key": "content_type",
+                  "value": "article"
+                },
+                {
+                  "key": "limit",
+                  "value": "2"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Drafts",
+      "item": [
+        {
+          "name": "Draft by id is not delivered",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error is NotFound', () => { const b = pm.response.json(); pm.expect(b.sys.type).to.eql('Error'); pm.expect(b.sys.id).to.eql('NotFound'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/spaces/{{spaceId}}/environments/{{environment}}/entries/{{draftId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "spaces",
+                "{{spaceId}}",
+                "environments",
+                "{{environment}}",
+                "entries",
+                "{{draftId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Draft by slug finds nothing",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200 with an empty result', () => { pm.response.to.have.status(200); pm.expect(pm.response.json().total).to.eql(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/spaces/{{spaceId}}/environments/{{environment}}/entries?content_type=article&fields.slug={{draftSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "spaces",
+                "{{spaceId}}",
+                "environments",
+                "{{environment}}",
+                "entries"
+              ],
+              "query": [
+                {
+                  "key": "content_type",
+                  "value": "article"
+                },
+                {
+                  "key": "fields.slug",
+                  "value": "{{draftSlug}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Errors",
+      "item": [
+        {
+          "name": "No token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 401', () => pm.response.to.have.status(401));",
+                  "pm.test('says an access token is required', () => pm.expect(pm.response.json().message).to.match(/access token is required/i));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/spaces/{{spaceId}}/environments/{{environment}}/entries?content_type=article",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "spaces",
+                "{{spaceId}}",
+                "environments",
+                "{{environment}}",
+                "entries"
+              ],
+              "query": [
+                {
+                  "key": "content_type",
+                  "value": "article"
+                }
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Invalid token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 401', () => pm.response.to.have.status(401));",
+                  "pm.test('error is AccessTokenInvalid', () => pm.expect(pm.response.json().sys.id).to.eql('AccessTokenInvalid'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/spaces/{{spaceId}}/environments/{{environment}}/entries?content_type=article",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "spaces",
+                "{{spaceId}}",
+                "environments",
+                "{{environment}}",
+                "entries"
+              ],
+              "query": [
+                {
+                  "key": "content_type",
+                  "value": "article"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "not-a-real-token",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Entry that does not exist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 404', () => pm.response.to.have.status(404));",
+                  "pm.test('error is NotFound', () => pm.expect(pm.response.json().sys.id).to.eql('NotFound'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/spaces/{{spaceId}}/environments/{{environment}}/entries/this-id-does-not-exist",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "spaces",
+                "{{spaceId}}",
+                "environments",
+                "{{environment}}",
+                "entries",
+                "this-id-does-not-exist"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Limit above the maximum",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('error is InvalidQuery', () => pm.expect(pm.response.json().sys.id).to.eql('InvalidQuery'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/spaces/{{spaceId}}/environments/{{environment}}/entries?content_type=article&limit=5000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "spaces",
+                "{{spaceId}}",
+                "environments",
+                "{{environment}}",
+                "entries"
+              ],
+              "query": [
+                {
+                  "key": "content_type",
+                  "value": "article"
+                },
+                {
+                  "key": "limit",
+                  "value": "5000"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter by a field that does not exist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 422', () => pm.response.to.have.status(422));",
+                  "pm.test('error is UnknownField', () => pm.expect(pm.response.json().sys.id).to.eql('UnknownField'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/spaces/{{spaceId}}/environments/{{environment}}/entries?content_type=article&fields.nope=x",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "spaces",
+                "{{spaceId}}",
+                "environments",
+                "{{environment}}",
+                "entries"
+              ],
+              "query": [
+                {
+                  "key": "content_type",
+                  "value": "article"
+                },
+                {
+                  "key": "fields.nope",
+                  "value": "x"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

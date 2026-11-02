@@ -1,0 +1,57 @@
+{
+  "name": "Contentful Delivery",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "https://cdn.contentful.com",
+      "enabled": true
+    },
+    {
+      "key": "spaceId",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "environment",
+      "value": "master",
+      "enabled": true
+    },
+    {
+      "key": "cdaToken",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "publishedId",
+      "value": "seed-api-testing-basics",
+      "enabled": true
+    },
+    {
+      "key": "publishedSlug",
+      "value": "api-testing-basics",
+      "enabled": true
+    },
+    {
+      "key": "draftId",
+      "value": "seed-unpublished-draft",
+      "enabled": true
+    },
+    {
+      "key": "draftSlug",
+      "value": "draft-next-article",
+      "enabled": true
+    },
+    {
+      "key": "latestSlug",
+      "value": "testing-on-mobile-viewports",
+      "enabled": true
+    },
+    {
+      "key": "expectedTotal",
+      "value": "3",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}
