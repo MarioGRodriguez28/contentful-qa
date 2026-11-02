@@ -1,5 +1,7 @@
 # Contentful QA
 
+[![Tests](https://github.com/MarioGRodriguez28/contentful-qa/actions/workflows/tests.yml/badge.svg)](https://github.com/MarioGRodriguez28/contentful-qa/actions/workflows/tests.yml)
+
 A personal learning project: tests at four levels against a headless CMS, using a free Contentful space.
 
 It is not client work and it does not come from a real project. I built it to practise testing a CMS from the API down to the screen, and to keep the result honest: everything listed as done below was run and passed, and everything else is in the [Roadmap](#roadmap).
@@ -104,7 +106,7 @@ Reports go to `reports/` and `playwright-report/`.
 
 `.github/workflows/tests.yml` runs on every push and pull request, and can be started by hand. It has three jobs: lint, types and unit tests with no secrets, then the API suites and the Playwright suite, each saving its reports as artifacts. The last two need two repository secrets: `CONTENTFUL_SPACE_ID` and `CONTENTFUL_CDA_TOKEN`. They only read content; the management token is never used in CI.
 
-**The workflow has not run on GitHub yet.** What I did instead was run each of its steps locally in a clean clone, on Node 22, with no `.env` and only those two secrets as environment variables. Pull requests from forks do not receive secrets, so those jobs only run for branches of this repository.
+The first run on GitHub passed in all three jobs. Its reports have the same counts as a local run (102 UI cases, 48 REST, 40 Postman assertions, 41 GraphQL), and I checked the uploaded artifacts: they hold no token and no Playwright traces. Before publishing I had also run each step in a clean clone on Node 22 with only those two secrets. Pull requests from forks do not receive secrets, so those jobs only run for branches of this repository.
 
 ## Security notes
 
@@ -139,7 +141,6 @@ test/           unit tests of the support code
 
 Not done yet:
 
-- Run the workflow on GitHub and add a status badge once it passes.
 - Appium tests on a mobile emulator or simulator. Playwright's emulation covers viewport and touch, but not a native device, and I have not set Appium up.
 - Create a separate space for each CI run through the management API, so runs do not share data.
 - Publish the Python summary in the CI run page, and run the k6 check as a manual workflow.
